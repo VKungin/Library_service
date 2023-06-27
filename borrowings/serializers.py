@@ -7,7 +7,7 @@ from users.models import User
 
 class BorrowingSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Borrowing
