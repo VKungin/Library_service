@@ -1,11 +1,18 @@
 from rest_framework import serializers
 
 from books.models import Book
+from books.serializers import BookSerializer
 from borrowings.models import Borrowing
-from users.models import User
+from users.serializers import UserSerializer
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrowing
+        fields = "__all__"
+
+
+class BorrowingCreateSerializer(BorrowingSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all())
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
@@ -32,3 +39,20 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
         borrowing = Borrowing.objects.create(**validated_data)
         return borrowing
+
+
+class BorrowingDetailSerializer(BorrowingSerializer):
+    book = BookSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+    expected_return_date = serializers.DateField(read_only=True)
+
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "book",
+            "user",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+        )
