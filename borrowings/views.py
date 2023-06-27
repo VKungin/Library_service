@@ -26,4 +26,7 @@ class BorrowingReturnView(generics.UpdateAPIView):
     serializer_class = BorrowingReturnSerializer
 
     def perform_update(self, serializer):
-        serializer.save(actual_return_date=date.today())
+        borrowing = serializer.save(actual_return_date=date.today())
+        book = borrowing.book
+        book.inventory += 1
+        book.save()
