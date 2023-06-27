@@ -18,3 +18,17 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
         )
+
+    def create(self, validated_data):
+        book = validated_data["book"]
+
+        if book.inventory == 0:
+            raise serializers.ValidationError(
+                "Inventory is zero for the selected book."
+            )
+
+        book.inventory -= 1
+        book.save()
+
+        borrowing = Borrowing.objects.create(**validated_data)
+        return borrowing
