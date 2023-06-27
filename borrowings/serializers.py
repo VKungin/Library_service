@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import serializers
 
 from books.models import Book
@@ -55,3 +57,11 @@ class BorrowingDetailSerializer(BorrowingSerializer):
             "expected_return_date",
             "actual_return_date",
         )
+
+
+class BorrowingReturnSerializer(BorrowingSerializer):
+    actual_return_date = serializers.DateField()
+
+    class Meta:
+        model = Borrowing
+        fields = ("actual_return_date",)

@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import generics
 
 
@@ -5,6 +7,7 @@ from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingCreateSerializer,
     BorrowingDetailSerializer,
+    BorrowingReturnSerializer,
 )
 
 
@@ -18,4 +21,9 @@ class BorrowingDetailView(generics.RetrieveAPIView):
     serializer_class = BorrowingDetailSerializer
 
 
-# class BorrowingReturnView
+class BorrowingReturnView(generics.UpdateAPIView):
+    queryset = Borrowing.objects.select_related()
+    serializer_class = BorrowingReturnSerializer
+
+    def perform_update(self, serializer):
+        serializer.save(actual_return_date=date.today())
