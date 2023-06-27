@@ -13,6 +13,9 @@ class BorrowingCreateView(generics.CreateAPIView):
     serializer_class = BorrowingCreateSerializer
 
 
-class BorrowingDetailView(generics.RetrieveUpdateAPIView):
+class BorrowingDetailView(generics.RetrieveAPIView):
     queryset = Borrowing.objects.select_related()
     serializer_class = BorrowingDetailSerializer
+
+
+# class BorrowingReturnView

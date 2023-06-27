@@ -21,5 +21,6 @@ from .views import BorrowingCreateView, BorrowingDetailView
 urlpatterns = [
     path("", BorrowingCreateView.as_view(), name="create"),
     path("<int:pk>/", BorrowingDetailView.as_view(), name="detail"),
+    # path("<int:pk>/return", BorrowingReturnView.as_view(), name="return"),
 ]
 app_name = "borrowings"

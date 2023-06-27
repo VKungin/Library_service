@@ -42,9 +42,8 @@ class BorrowingCreateSerializer(BorrowingSerializer):
 
 
 class BorrowingDetailSerializer(BorrowingSerializer):
-    book = BookSerializer(read_only=True)
-    user = UserSerializer(read_only=True)
-    expected_return_date = serializers.DateField(read_only=True)
+    book = BookSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = Borrowing
