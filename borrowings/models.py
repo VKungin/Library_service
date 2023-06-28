@@ -11,6 +11,12 @@ class Borrowing(models.Model):
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
 
+    @property
+    def is_active(self) -> bool:
+        if self.actual_return_date:
+            return False
+        return True
+
     def __str__(self):
         return (
             f"{self.id}, Borrowing: {self.book.title} by "

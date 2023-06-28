@@ -11,7 +11,29 @@ from users.serializers import UserSerializer
 class BorrowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
-        fields = "__all__"
+        fields = (
+            "id",
+            "book",
+            "user",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "is_active",
+        )
+
+
+class BorrowingListSerializer(BorrowingSerializer):
+    class Meta:
+        model = Borrowing
+        fields = (
+            "id",
+            "book",
+            "user",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "is_active",
+        )
 
 
 class BorrowingCreateSerializer(BorrowingSerializer):
