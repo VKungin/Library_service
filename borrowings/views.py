@@ -1,14 +1,31 @@
 from datetime import date
 
 from rest_framework import generics
-
+from rest_framework.permissions import IsAuthenticated
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
     BorrowingCreateSerializer,
     BorrowingDetailSerializer,
     BorrowingReturnSerializer,
+    BorrowingSerializer,
 )
+
+
+class BorrowingListView(generics.ListAPIView):
+    queryset = Borrowing.objects.select_related()
+    serializer_class = BorrowingSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser:
+            queryset = Borrowing.objects.select_related()
+        else:
+            queryset = Borrowing.objects.filter(user=user)
+
+        return queryset
 
 
 class BorrowingCreateView(generics.CreateAPIView):

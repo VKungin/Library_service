@@ -16,10 +16,16 @@ Including another URLconf
 """
 from django.urls import path
 
-from .views import BorrowingCreateView, BorrowingDetailView, BorrowingReturnView
+from .views import (
+    BorrowingCreateView,
+    BorrowingDetailView,
+    BorrowingReturnView,
+    BorrowingListView,
+)
 
 urlpatterns = [
     path("", BorrowingCreateView.as_view(), name="create"),
+    path("list/", BorrowingListView.as_view(), name="list"),
     path("<int:pk>/", BorrowingDetailView.as_view(), name="detail"),
     path("<int:pk>/return/", BorrowingReturnView.as_view(), name="return"),
 ]
