@@ -38,8 +38,8 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(user_id=user_id)
 
         is_active = self.request.query_params.get("is_active")
-        if is_active is not None:
-            is_active = bool(int(is_active))
+        if is_active:
+            is_active = is_active.lower() == "true"
             filtered_queryset = []
             for borrowing in queryset:
                 if borrowing.is_active == is_active:
