@@ -23,6 +23,8 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
 
 class BorrowingListSerializer(BorrowingSerializer):
+    book = serializers.StringRelatedField()
+
     class Meta:
         model = Borrowing
         fields = (
@@ -78,6 +80,7 @@ class BorrowingDetailSerializer(BorrowingSerializer):
             "borrow_date",
             "expected_return_date",
             "actual_return_date",
+            "is_active",
         )
 
 

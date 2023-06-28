@@ -1,6 +1,6 @@
 from datetime import date
 
-from rest_framework import generics
+from rest_framework import generics, exceptions
 from rest_framework.permissions import IsAuthenticated
 
 from borrowings.models import Borrowing
@@ -59,7 +59,11 @@ class BorrowingReturnView(generics.UpdateAPIView):
     serializer_class = BorrowingReturnSerializer
 
     def perform_update(self, serializer):
-        borrowing = serializer.save(actual_return_date=date.today())
-        book = borrowing.book
-        book.inventory += 1
-        book.save()
+        borrowing = serializer.instance
+        if borrowing.actual_return_date:
+            raise exceptions.ValidationError("The book has already been returned.")
+        else:
+            borrowing = serializer.save(actual_return_date=date.today())
+            book = borrowing.book
+            book.inventory += 1
+            book.save()
