@@ -22,6 +22,5 @@ def check_overdue_borrowings():
             )
             send_notification(borrowing, notification_message)
     else:
-        borrowings = Borrowing.objects.all()
-        for borrowing in borrowings:
-            send_notification(borrowing, "No borrowings overdue today!")
+        borrowings = Borrowing.objects.filter(user__is_superuser=True).first()
+        send_notification(borrowings, "No borrowings overdue today!")
