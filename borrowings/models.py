@@ -16,10 +16,3 @@ class Borrowing(models.Model):
         if self.actual_return_date:
             return False
         return True
-
-    def __str__(self):
-        return (
-            f"{self.id}, Borrowing: {self.book.title} by "
-            f"{self.user.email} actualy return date:"
-            f" {self.actual_return_date}"
-        )

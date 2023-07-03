@@ -1,7 +1,11 @@
 from datetime import date
+from django.db import transaction
+
+from notifications.models import Notification
+from notifications.telegram_notifications import send_notification
 
 from rest_framework import generics, exceptions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from borrowings.models import Borrowing
 from borrowings.serializers import (
@@ -48,22 +52,45 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
 
         return queryset
 
+    def perform_create(self, serializer):
+        borrowing = serializer.save()
+        message = (
+            f"New borrowing created:\n"
+            f"book: {borrowing.book.title}\n"
+            f"expected return date:{borrowing.expected_return_date}"
+        )
+
+        send_notification(borrowing, message)
+
+        return borrowing
+
 
 class BorrowingDetailView(generics.RetrieveAPIView):
     queryset = Borrowing.objects.select_related()
     serializer_class = BorrowingDetailSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class BorrowingReturnView(generics.UpdateAPIView):
     queryset = Borrowing.objects.select_related()
     serializer_class = BorrowingReturnSerializer
+    permission_classes = (IsAdminUser,)
 
     def perform_update(self, serializer):
         borrowing = serializer.instance
         if borrowing.actual_return_date:
             raise exceptions.ValidationError("The book has already been returned.")
         else:
+            # with transaction.atomic():
             borrowing = serializer.save(actual_return_date=date.today())
             book = borrowing.book
             book.inventory += 1
             book.save()
+
+            message = (
+                f"Borrowing returned:\n"
+                f"book: {borrowing.book.title}\n"
+                f"returned date:{borrowing.actual_return_date}"
+            )
+
+            send_notification(borrowing, message)

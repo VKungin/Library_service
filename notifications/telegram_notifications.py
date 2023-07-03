@@ -1,0 +1,18 @@
+import requests
+from rest_framework import status
+from rest_framework.response import Response
+
+from Library_service.settings import TELEGRAM_BOT_TOKEN
+from notifications.models import Notification
+
+TOKEN = TELEGRAM_BOT_TOKEN
+
+
+def send_notification(borrowing, message):
+    user = borrowing.user
+    notification = Notification.objects.get(user=user)
+    chat_id = notification.chat_id
+
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
+    response = requests.get(url)
+    return Response(response, status=status.HTTP_200_OK)

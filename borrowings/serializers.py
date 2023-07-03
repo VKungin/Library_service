@@ -85,8 +85,6 @@ class BorrowingDetailSerializer(BorrowingSerializer):
 
 
 class BorrowingReturnSerializer(BorrowingSerializer):
-    actual_return_date = serializers.DateField()
-
     class Meta:
         model = Borrowing
         fields = ("actual_return_date",)
