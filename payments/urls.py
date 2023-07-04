@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.urls import path
 
-# from .views import
+from .views import PaymentSuccessView, PaymentCancelView
 
 urlpatterns = [
-    # path("", .as_view(), name="list-create"),
-
+    path("success/", PaymentSuccessView.as_view(), name="success-payment"),
+    path("cancel/", PaymentCancelView.as_view(), name="cancel-payment"),
 ]
 app_name = "payments"
