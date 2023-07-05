@@ -20,4 +20,4 @@ class Payment(models.Model):
     money_to_pay = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __str__(self):
-        return f"{self.id} {self.status}"
+        return f"{self.id} {self.status}, {self.type}"
