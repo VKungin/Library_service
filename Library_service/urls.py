@@ -26,4 +26,5 @@ urlpatterns = [
     path(
         "api/notifications/", include("notifications.urls", namespace="notifications")
     ),
+    path("api/payments/", include("payments.urls", namespace="payments")),
 ]
