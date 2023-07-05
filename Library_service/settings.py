@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "notifications",
     "django_celery_beat",
     "payments",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -144,7 +145,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -158,3 +160,17 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379"
 CELERY_TIMEZONE = "Europe/Kiev"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library service",
+    "DESCRIPTION": "The system of tracking books",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
+}

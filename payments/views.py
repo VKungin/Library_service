@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from payments.models import Payment
@@ -12,6 +13,7 @@ from payments.serializers import (
 class PaymentCreateView(generics.CreateAPIView):
     queryset = Payment.objects.select_related()
     serializer_class = PaymentCreateSerializer
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
