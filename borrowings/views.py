@@ -60,7 +60,9 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
             f"expected return date:{borrowing.expected_return_date}"
         )
 
-        send_notification(borrowing, message)
+        user = borrowing.user
+        if user.notifications.exists():
+            send_notification(borrowing, message)
 
         return borrowing
 
