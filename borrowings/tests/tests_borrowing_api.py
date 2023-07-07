@@ -73,7 +73,13 @@ class AuthenticatedBorrowingApiTests(TestCase):
         }
 
         res = self.client.post(BORROWING_URL, payload)
+        borrowing = Borrowing.objects.get(id=res.data["id"])
 
+        self.assertEqual(payload["book"], getattr(borrowing.book, "id"))
+        self.assertEqual(
+            payload["expected_return_date"],
+            str(getattr(borrowing, "expected_return_date")),
+        )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_auth_required_get(self):
@@ -99,5 +105,11 @@ class AdminBorrowingApiTests(TestCase):
         }
 
         res = self.client.post(BORROWING_URL, payload)
+        borrowing = Borrowing.objects.get(id=res.data["id"])
 
+        self.assertEqual(payload["book"], getattr(borrowing.book, "id"))
+        self.assertEqual(
+            payload["expected_return_date"],
+            str(getattr(borrowing, "expected_return_date")),
+        )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)

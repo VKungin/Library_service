@@ -1,7 +1,5 @@
 from datetime import date
-from django.db import transaction
 
-from notifications.models import Notification
 from notifications.telegram_notifications import send_notification
 
 from rest_framework import generics, exceptions
@@ -83,7 +81,6 @@ class BorrowingReturnView(generics.UpdateAPIView):
         if borrowing.actual_return_date:
             raise exceptions.ValidationError("The book has already been returned.")
         else:
-            # with transaction.atomic():
             borrowing = serializer.save(actual_return_date=date.today())
             book = borrowing.book
             book.inventory += 1
