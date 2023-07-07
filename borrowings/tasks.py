@@ -20,7 +20,9 @@ def check_overdue_borrowings():
             notification_message = (
                 f"The return of the book {borrowing.book.title} is overdue!"
             )
-            send_notification(borrowing, notification_message)
+            user = borrowing.user
+            if user.notifications.exists():
+                send_notification(borrowing, notification_message)
     else:
         borrowings = Borrowing.objects.filter(user__is_superuser=True).first()
         send_notification(borrowings, "No borrowings overdue today!")

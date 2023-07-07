@@ -89,10 +89,12 @@ class BorrowingReturnView(generics.UpdateAPIView):
             book.inventory += 1
             book.save()
 
-            message = (
-                f"Borrowing returned:\n"
-                f"book: {borrowing.book.title}\n"
-                f"returned date:{borrowing.actual_return_date}"
-            )
+            user = borrowing.user
+            if user.notifications.exists():
+                message = (
+                    f"Borrowing returned:\n"
+                    f"book: {borrowing.book.title}\n"
+                    f"returned date:{borrowing.actual_return_date}"
+                )
 
-            send_notification(borrowing, message)
+                send_notification(borrowing, message)

@@ -76,35 +76,28 @@ class AuthenticatedBorrowingApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
+    def test_auth_required_get(self):
+        res = self.client.get(BORROWING_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-#
-#     def test_auth_required_get(self):
-#         res = self.client.get(BOOK_URL)
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#
-#
-# class AdminBookApiTests(TestCase):
-#     def setUp(self) -> None:
-#         self.client = APIClient()
-#         self.user = get_user_model().objects.create_user(
-#             "admin@test.com",
-#             "testpass",
-#             is_staff=True,
-#         )
-#         self.client.force_authenticate(self.user)
-#
-#     def test_create_book(self):
-#         payload = {
-#             "title": "Test book",
-#             "author": "Test author",
-#             "cover": "hard",
-#             "inventory": "10",
-#             "daily_fee": "2.00",
-#         }
-#
-#         res = self.client.post(BOOK_URL, payload)
-#         book = Book.objects.get(id=res.data["id"])
-#
-#         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-#         for key in payload:
-#             self.assertEqual(payload[key], str(getattr(book, key)))
+
+class AdminBorrowingApiTests(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            "admin@test.com",
+            "testpass",
+            is_staff=True,
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_create_borrowing(self):
+        book = sample_book()
+        payload = {
+            "book": book.id,
+            "expected_return_date": "2023-07-15",
+        }
+
+        res = self.client.post(BORROWING_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
