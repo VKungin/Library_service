@@ -13,9 +13,7 @@ class Borrowing(models.Model):
 
     @property
     def is_active(self) -> bool:
-        if self.actual_return_date:
-            return False
-        return True
+        return not bool(self.actual_return_date)
 
     def __str__(self):
         return f"id: {self.id}, book: {self.book.title}"

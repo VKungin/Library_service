@@ -44,11 +44,7 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
         is_active = self.request.query_params.get("is_active")
         if is_active:
             is_active = is_active.lower() == "true"
-            filtered_queryset = []
-            for borrowing in queryset:
-                if borrowing.is_active == is_active:
-                    filtered_queryset.append(borrowing)
-            queryset = filtered_queryset
+            queryset = queryset.filter(actual_return_date__isnull=is_active)
 
         return queryset
 
