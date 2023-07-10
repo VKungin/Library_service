@@ -15,16 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
-from .views import (
-    BorrowingListCreateView,
-    BorrowingDetailView,
-    BorrowingReturnView,
-)
+from .views import BorrowingViewSet
+
+router = DefaultRouter()
+router.register("", BorrowingViewSet)
 
 urlpatterns = [
-    path("", BorrowingListCreateView.as_view(), name="list-create"),
-    path("<int:pk>/", BorrowingDetailView.as_view(), name="detail"),
-    path("<int:pk>/return/", BorrowingReturnView.as_view(), name="return"),
-]
+    path(
+        "<int:pk>/return/",
+        BorrowingViewSet.as_view({"post": "return_book"}),
+        name="return-book",
+    ),
+] + router.urls
+
 app_name = "borrowings"
+

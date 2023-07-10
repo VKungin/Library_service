@@ -1,34 +1,59 @@
-from datetime import date
-from django.db import transaction
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from notifications.models import Notification
-from notifications.telegram_notifications import send_notification
-
-from rest_framework import generics, exceptions
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-
-from borrowings.models import Borrowing
-from borrowings.serializers import (
+from .serializers import (
     BorrowingCreateSerializer,
     BorrowingDetailSerializer,
     BorrowingReturnSerializer,
     BorrowingListSerializer,
 )
+from .models import Borrowing
+from notifications.telegram_notifications import send_notification
+from rest_framework.permissions import IsAuthenticated
+from datetime import date
+from rest_framework import exceptions
 
 
-class BorrowingListCreateView(generics.ListCreateAPIView):
+class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.select_related()
-    serializer_class = BorrowingCreateSerializer
     permission_classes = (IsAuthenticated,)
 
+    @action(detail=True, methods=["post"], url_path="return")
+    def return_book(self, request, pk=None):
+        borrowing = self.get_object()
+
+        if borrowing.actual_return_date:
+            raise exceptions.ValidationError("The book has already been returned.")
+        else:
+            borrowing.actual_return_date = date.today()
+            borrowing.save()
+
+            book = borrowing.book
+            book.inventory += 1
+            book.save()
+
+            message = (
+                f"Borrowing returned:\n"
+                f"book: {borrowing.book.title}\n"
+                f"returned date:{borrowing.actual_return_date}"
+            )
+
+            send_notification(borrowing, message)
+
+        return Response(status=status.HTTP_200_OK)
+
     def get_serializer_class(self):
-        if self.request.method == "POST":
+        if self.action == "create":
             return BorrowingCreateSerializer
+        elif self.action == "retrieve":
+            return BorrowingDetailSerializer
+        elif self.action == "return_book":
+            return BorrowingReturnSerializer
         else:
             return BorrowingListSerializer
 
     def get_queryset(self):
-        """admin sees all borrowing, not admin only his own"""
         user = self.request.user
 
         if user.is_superuser:
@@ -36,7 +61,6 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
         else:
             queryset = Borrowing.objects.filter(user=user)
 
-        """filter by user_id and is_active"""
         user_id = self.request.query_params.get("user_id")
         if user_id:
             queryset = queryset.filter(user_id=user_id)
@@ -60,33 +84,3 @@ class BorrowingListCreateView(generics.ListCreateAPIView):
 
         return borrowing
 
-
-class BorrowingDetailView(generics.RetrieveAPIView):
-    queryset = Borrowing.objects.select_related()
-    serializer_class = BorrowingDetailSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-class BorrowingReturnView(generics.UpdateAPIView):
-    queryset = Borrowing.objects.select_related()
-    serializer_class = BorrowingReturnSerializer
-    permission_classes = (IsAdminUser,)
-
-    def perform_update(self, serializer):
-        borrowing = serializer.instance
-        if borrowing.actual_return_date:
-            raise exceptions.ValidationError("The book has already been returned.")
-        else:
-            # with transaction.atomic():
-            borrowing = serializer.save(actual_return_date=date.today())
-            book = borrowing.book
-            book.inventory += 1
-            book.save()
-
-            message = (
-                f"Borrowing returned:\n"
-                f"book: {borrowing.book.title}\n"
-                f"returned date:{borrowing.actual_return_date}"
-            )
-
-            send_notification(borrowing, message)
