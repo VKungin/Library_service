@@ -11,8 +11,6 @@ from .serializers import (
 from .models import Borrowing
 from notifications.telegram_notifications import send_notification
 from rest_framework.permissions import IsAuthenticated
-from datetime import date
-from rest_framework import exceptions
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
@@ -21,25 +19,10 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="return")
     def return_book(self, request, pk=None):
-        borrowing = self.get_object()
-
-        if borrowing.actual_return_date:
-            raise exceptions.ValidationError("The book has already been returned.")
-        else:
-            borrowing.actual_return_date = date.today()
-            borrowing.save()
-
-            book = borrowing.book
-            book.inventory += 1
-            book.save()
-
-            message = (
-                f"Borrowing returned:\n"
-                f"book: {borrowing.book.title}\n"
-                f"returned date:{borrowing.actual_return_date}"
-            )
-
-            send_notification(borrowing, message)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.return_book()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -74,13 +57,14 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         borrowing = serializer.save()
-        message = (
-            f"New borrowing created:\n"
-            f"book: {borrowing.book.title}\n"
-            f"expected return date:{borrowing.expected_return_date}"
-        )
+        user = borrowing.user
+        if user.notifications.exists():
+            message = (
+                f"New borrowing created:\n"
+                f"book: {borrowing.book.title}\n"
+                f"expected return date:{borrowing.expected_return_date}"
+            )
 
-        send_notification(borrowing, message)
+            send_notification(borrowing, message)
 
         return borrowing
-

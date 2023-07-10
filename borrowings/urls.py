@@ -22,13 +22,6 @@ from .views import BorrowingViewSet
 router = DefaultRouter()
 router.register("", BorrowingViewSet)
 
-urlpatterns = [
-    path(
-        "<int:pk>/return/",
-        BorrowingViewSet.as_view({"post": "return_book"}),
-        name="return-book",
-    ),
-] + router.urls
+urlpatterns = router.urls
 
 app_name = "borrowings"
-

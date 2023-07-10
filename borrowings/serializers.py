@@ -1,9 +1,14 @@
+from datetime import date
+
+from datetime import date
+from rest_framework import exceptions
 from rest_framework import serializers
 
 from books.models import Book
 from books.serializers import BookSerializer
 from borrowings.models import Borrowing
 from users.serializers import UserSerializer
+from notifications.telegram_notifications import send_notification
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -86,3 +91,28 @@ class BorrowingReturnSerializer(BorrowingSerializer):
     class Meta:
         model = Borrowing
         fields = ("actual_return_date",)
+
+    def return_book(self):
+        borrowing = self.instance
+
+        if borrowing.actual_return_date:
+            raise exceptions.ValidationError("The book has already been returned.")
+        else:
+            borrowing.actual_return_date = date.today()
+            borrowing.save()
+
+            book = borrowing.book
+            book.inventory += 1
+            book.save()
+
+            user = borrowing.user
+            if user.notifications.exists():
+                message = (
+                    f"Borrowing returned:\n"
+                    f"book: {borrowing.book.title}\n"
+                    f"returned date:{borrowing.actual_return_date}"
+                )
+
+                send_notification(borrowing, message)
+
+        return borrowing
