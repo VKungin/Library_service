@@ -13,7 +13,4 @@ def send_notification(borrowing, message):
 
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage?chat_id={chat_id}&text={message}"
     response = requests.get(url)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    return response.status_code == 200

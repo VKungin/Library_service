@@ -30,7 +30,7 @@ class PaymentSuccessView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.status = "paid"
+        instance.status = instance.PAID
         instance.save()
 
         serializer = self.get_serializer(instance)
@@ -43,7 +43,7 @@ class PaymentCancelView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        instance.status = "canceled"
+        instance.status = instance.CANCELED
         instance.save()
 
         serializer = self.get_serializer(instance)

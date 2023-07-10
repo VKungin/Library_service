@@ -1,5 +1,3 @@
-import datetime
-
 import stripe
 from rest_framework import serializers
 
@@ -25,37 +23,14 @@ class PaymentCreateSerializer(PaymentSerializer):
             "money_to_pay",
         )
 
-    def get_type(self):
-        borrowing = self.validated_data["borrowing"]
-        print(borrowing.expected_return_date)
-        if borrowing.expected_return_date < datetime.date.today():
-            return "fine"
-        return "payment"
-
-    def get_money_to_pay(self):
-        book = self.validated_data["borrowing"].book
-        borrowing = self.validated_data["borrowing"]
-        borrow_date = borrowing.borrow_date
-        expected_return_date = borrowing.expected_return_date
-
-        days_borrowed = (expected_return_date - borrow_date).days
-        money_to_pay = book.daily_fee * days_borrowed
-
-        payment_type = self.get_type()
-        print(payment_type)
-        if payment_type == "fine":
-            money_to_pay *= 2
-        return money_to_pay
-
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        validated_data["type"] = self.get_type()
-        validated_data["money_to_pay"] = self.get_money_to_pay()
+        borrowing = validated_data["borrowing"]
+        validated_data["type"] = borrowing.get_type()
+        validated_data["money_to_pay"] = borrowing.get_money_to_pay()
 
         instance = super().create(validated_data)
-
-        # print(validated_data)
 
         payment_response = stripe.checkout.Session.create(
             payment_method_types=["card"],

@@ -4,13 +4,19 @@ from borrowings.models import Borrowing
 
 
 class Payment(models.Model):
+    PENDING = "pending"
+    PAID = "paid"
+    CANCELED = "canceled"
     status_choices = [
-        ("pending", "PENDING"),
-        ("paid", "PAID"),
-        ("canceled", "CANCELED"),
+        (PENDING, "PENDING"),
+        (PAID, "PAID"),
+        (CANCELED, "CANCELED"),
     ]
     status = models.CharField(max_length=8, choices=status_choices, default="PENDING")
-    type_choices = [("payment", "PAYMENT"), ("fine", "FINE")]
+
+    PAYMENT = "payment"
+    FINE = "fine"
+    type_choices = [(PAYMENT, "PAYMENT"), (FINE, "FINE")]
     type = models.CharField(max_length=7, choices=type_choices, default="PAYMENT")
     borrowing = models.OneToOneField(
         Borrowing, on_delete=models.CASCADE, related_name="payments"
